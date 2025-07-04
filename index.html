@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team 404</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/css/icons.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="hero-section">
+    <canvas id="glitch-canvas"></canvas>
+
+    <div class="hero">
+      <div class="hero-overlay">
+        <h1>Team 404</h1>
+        <p>We Find Solutions in the Errors</p>
+        <button id="enter-btn">Enter Portfolio</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-progress"></div>
+
+  <div class="floating-icons">
+    <i class="ph ph-cloud"></i>
+    <i class="ph ph-device-mobile"></i>
+    <i class="ph ph-stack"></i>
+  </div>
+
+  <section class="tech-stack">
+    <h2>Our Tech Stack</h2>
+    <div class="grid">
+      <div><i class="ph ph-monitor"></i><h3>Frontend</h3><p>React, Tailwind, HTML/CSS</p></div>
+      <div><i class="ph ph-server"></i><h3>Backend</h3><p>Node.js, Express, Firebase</p></div>
+      <div><i class="ph ph-device-mobile"></i><h3>Mobile</h3><p>Flutter, Dart</p></div>
+      <div><i class="ph ph-cloud"></i><h3>Cloud</h3><p>AWS, Netlify, Vercel</p></div>
+    </div>
+  </section>
+
+  <section class="process">
+    <h2>Our Process</h2>
+    <div class="steps">
+      <div><i class="ph ph-lightbulb"></i><h3>Ideate</h3><p>We brainstorm and gather insight into your needs.</p></div>
+      <div><i class="ph ph-code"></i><h3>Build</h3><p>Our team turns ideas into scalable digital products.</p></div>
+      <div><i class="ph ph-rocket"></i><h3>Launch</h3><p>We test, refine, and deploy for optimal impact.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Team 404. All rights reserved.
+  </footer>
+
+  <script src="js/glitch.js"></script>
+  <script>
+    document.getElementById('enter-btn').addEventListener('click', function () {
+      window.location.href = 'main.html';
+    });
+
+    window.addEventListener('scroll', function () {
+      const progress = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      document.querySelector('.scroll-progress').style.width = progress + '%';
+    });
+  </script>
+</body>
+</html>
