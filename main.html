@@ -1,16 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team 404 Portfolio</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team 404 - Tech Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js CDN for 3D rendering (still included, but no 3D objects are used) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Black background */
+            color: #ffffff; /* Default text color to white for better contrast */
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scrollbar */
+        }
+
+        /* Fixed background elements */
+        #background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure matrix rain is behind all content */
+        }
+
+        #three-canvas-container {
+            /* This container is no longer needed for 3D objects, but kept for consistency
+               or if future 3D elements are added. It has no visual impact now. */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none; /* Allow mouse events to pass through */
+        }
+
+        #matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Furthest back in background-container */
+            pointer-events: none; /* Allow mouse events to pass through */
+        }
+
+        /* Ensure content sections have their own background to cover the matrix */
+        section {
+            position: relative; /* Needed for z-index to work against fixed elements */
+            z-index: 10; /* Above matrix rain */
+        }
+
+        /* Header needs to be above content */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 30; /* Higher than content */
+        }
+
+        /* Footer needs to be above content */
+        footer {
+            position: relative; /* Can be relative as it's at the bottom of scrollable content */
+            z-index: 15; /* Above content sections, below header */
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
 </head>
-<body>
-  <div class="hero" style="padding: 100px 20px; text-align: center;">
-    <h1>Welcome to Our Portfolio</h1>
-    <p>Explore our full project case studies and showcases below.</p>
-    <a href="index.html" style="display: inline-block; margin-top: 20px; color: #06b6d4;">← Back to Home</a>
-  </div>
+<body class="text-white antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-gray-900 shadow-sm py-4 px-6 md:px-10 sticky top-0 z-50 rounded-b-lg">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-indigo-400 rounded-lg p-2 hover:text-indigo-200 transition-colors duration-300">Team 404</a>
+            <!-- Removed desktop navigation links -->
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-indigo-400 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 bg-gray-800 rounded-lg shadow-md py-2">
+            <!-- Mobile navigation links are still present for functionality -->
+            <a href="#about" class="block px-4 py-2 text-gray-200 hover:bg-indigo-700 hover:text-white rounded-md">About</a>
+            <a href="#services" class="block px-4 py-2 text-gray-200 hover:bg-indigo-700 hover:text-white rounded-md">Services</a>
+            <a href="#portfolio" class="block px-4 py-2 text-gray-200 hover:bg-indigo-700 hover:text-white rounded-md">Portfolio</a>
+            <a href="#team" class="block px-4 py-2 text-gray-200 hover:bg-indigo-700 hover:text-white rounded-md">Team</a>
+            <a href="#contact" class="block px-4 py-2 text-gray-200 hover:bg-indigo-700 hover:text-white rounded-md">Contact</a>
+        </div>
+    </header>
+
+    <!-- Background Elements Container (for matrix rain) -->
+    <div id="background-container">
+        <!-- Canvas for Matrix Rain Effect -->
+        <canvas id="matrix-canvas"></canvas>
+    </div>
+
+    <!-- The three-canvas-container is still present but empty as no 3D objects are rendered -->
+    <div id="three-canvas-container"></div>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-16 md:py-24 bg-gray-900 rounded-xl shadow-md mx-4 md:mx-auto my-8 max-w-6xl">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-white mb-12">About Team 404</h2>
+            <div class="flex flex-col md:flex-row items-center md:space-x-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://placehold.co/600x400/818CF8/FFFFFF?text=Team+Working" alt="Team Working" class="rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                </div>
+                <div class="md:w-1/2 text-gray-300 leading-relaxed">
+                    <p class="mb-4 text-lg">
+                        Team 404 is a dynamic and innovative collective of software engineers, designers, and strategists dedicated to crafting exceptional digital experiences. We thrive on challenges, turning complex problems into elegant solutions that drive real-world impact.
+                    </p>
+                    <p class="mb-4 text-lg">
+                        Our journey began with a shared passion for technology and a commitment to excellence. We believe in collaborative development, open communication, and continuous learning, ensuring that every project we undertake is not just completed, but perfected.
+                    </p>
+                    <p class="text-lg">
+                        From cutting-edge web applications to robust mobile solutions and intelligent AI systems, we leverage the latest technologies to deliver scalable, secure, and user-friendly products. We're not just building software; we're building futures.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Services Section -->
+    <section id="services" class="py-16 md:py-24 bg-gray-800 rounded-xl shadow-md mx-4 md:mx-auto my-8 max-w-6xl">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-white mb-12">Our Core Services</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service Card 1 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+                    <div class="text-indigo-400 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">Web Development</h3>
+                    <p class="text-gray-300">Crafting responsive, high-performance web applications using modern frameworks like React, Vue, and Angular.</p>
+                </div>
+                <!-- Service Card 2 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+                    <div class="text-indigo-400 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">Mobile App Development</h3>
+                    <p class="text-gray-300">Building intuitive and robust mobile applications for iOS and Android platforms, native or cross-platform.</p>
+                </div>
+                <!-- Service Card 3 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+                    <div class="text-indigo-400 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-4-2 4-2m4-13V6a4 4 0 00-4 4v3m6-9l-4 2 4 2m4-13V6a4 4 0 014 4v3"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">UI/UX Design</h3>
+                    <p class="text-gray-300">Creating captivating and user-centric interfaces that ensure seamless and enjoyable user experiences.</p>
+                </div>
+                <!-- Service Card 4 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+                    <div class="text-indigo-400 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 005-5V7a4 4 0 00-4-4H9a5 5 0 00-5 5v2.5"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">Cloud Solutions</h3>
+                    <p class="text-gray-300">Designing and implementing scalable cloud infrastructures on AWS, Azure, and Google Cloud.</p>
+                </div>
+                <!-- Service Card 5 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+                    <div class="text-indigo-400 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">AI & Machine Learning</h3>
+                    <p class="text-gray-300">Developing intelligent systems and models for data analysis, automation, and predictive analytics.</p>
+                </div>
+                <!-- Service Card 6 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+                    <div class="text-indigo-400 mb-4">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h.01M12 15v2m-2 4h4a2 2 0 002-2v-2a2 2 0 00-2-2H9.687a2 2 0 00-1.927 1.488l-2.43 7.29a1 1 0 00.95 1.37h12.836a1 1 0 00.95-1.37l-2.43-7.29A2 2 0 0014.313 15H12z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">DevOps & Automation</h3>
+                    <p class="text-gray-300">Streamlining development workflows, continuous integration, and deployment for faster delivery.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio/Projects Section -->
+    <section id="portfolio" class="py-16 md:py-24 bg-gray-900 rounded-xl shadow-md mx-4 md:mx-auto my-8 max-w-6xl">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-white mb-12">Our Recent Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project Card 1 -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/600x400/6366F1/FFFFFF?text=Project+Alpha" alt="Project Alpha" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Project Alpha</h3>
+                        <p class="text-gray-300 mb-4">A cutting-edge e-commerce platform with AI-powered recommendations and seamless user experience.</p>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-200 font-medium">View Details &rarr;</a>
+                    </div>
+                </div>
+                <!-- Project Card 2 -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/600x400/A855F7/FFFFFF?text=Project+Beta" alt="Project Beta" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Project Beta</h3>
+                        <p class="text-gray-300 mb-4">A comprehensive data analytics dashboard for real-time insights and predictive modeling.</p>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-200 font-medium">View Details &rarr;</a>
+                    </div>
+                </div>
+                <!-- Project Card 3 -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/600x400/EC4899/FFFFFF?text=Project+Gamma" alt="Project Gamma" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Project Gamma</h3>
+                        <p class="text-gray-300 mb-4">A secure and scalable blockchain-based supply chain management solution.</p>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-200 font-medium">View Details &rarr;</a>
+                    </div>
+                </div>
+                <!-- Project Card 4 -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/600x400/10B981/FFFFFF?text=Project+Delta" alt="Project Delta" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Project Delta</h3>
+                        <p class="text-gray-300 mb-4">An interactive educational gaming platform designed for engaging learning experiences.</p>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-200 font-medium">View Details &rarr;</a>
+                    </div>
+                </div>
+                <!-- Project Card 5 -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/600x400/F59E0B/FFFFFF?text=Project+Epsilon" alt="Project Epsilon" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Project Epsilon</h3>
+                        <p class="text-gray-300 mb-4">A smart home automation system integrating IoT devices for seamless control.</p>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-200 font-medium">View Details &rarr;</a>
+                    </div>
+                </div>
+                <!-- Project Card 6 -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/600x400/EF4444/FFFFFF?text=Project+Zeta" alt="Project Zeta" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Project Zeta</h3>
+                        <p class="text-gray-300 mb-4">A secure and efficient medical records management system compliant with health regulations.</p>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-200 font-medium">View Details &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-16 md:py-24 bg-gray-800 rounded-xl shadow-md mx-4 md:mx-auto my-8 max-w-6xl">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-white mb-12">Meet Our Talented Team</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg text-center hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/150x150/6366F1/FFFFFF?text=P1" alt="Person 1" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-indigo-600">
+                    <h3 class="text-xl font-semibold text-white mb-1">Person 1</h3>
+                    <p class="text-indigo-400 font-medium mb-3">Lead Developer</p>
+                    <p class="text-gray-300 text-sm">Specializes in full-stack web development with a focus on scalable architectures.</p>
+                </div>
+                <!-- Team Member 2 -->
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg text-center hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/150x150/A855F7/FFFFFF?text=P2" alt="Person 2" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-purple-600">
+                    <h3 class="text-xl font-semibold text-white mb-1">Person 2</h3>
+                    <p class="text-purple-400 font-medium mb-3">UI/UX Designer</p>
+                    <p class="text-gray-300 text-sm">Passionate about creating intuitive and visually stunning user interfaces.</p>
+                </div>
+                <!-- Team Member 3 -->
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg text-center hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/150x150/EC4899/FFFFFF?text=P3" alt="Person 3" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-pink-600">
+                    <h3 class="text-xl font-semibold text-white mb-1">Person 3</h3>
+                    <p class="text-pink-400 font-medium mb-3">Mobile Developer</p>
+                    <p class="text-gray-300 text-sm">Expert in crafting native iOS and Android applications with seamless performance.</p>
+                </div>
+                <!-- Team Member 4 -->
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg text-center hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    <img src="https://placehold.co/150x150/10B981/FFFFFF?text=P4" alt="Person 4" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-emerald-600">
+                    <h3 class="text-xl font-semibold text-white mb-1">Person 4</h3>
+                    <p class="text-emerald-400 font-medium mb-3">Data Scientist</p>
+                    <p class="text-gray-300 text-sm">Specializes in machine learning, data analysis, and predictive modeling.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 md:py-24 bg-indigo-900 text-white rounded-xl shadow-md mx-4 md:mx-auto my-8 max-w-6xl">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8">Get In Touch</h2>
+            <p class="text-lg md:text-xl mb-10 max-w-2xl mx-auto opacity-90">
+                Have a project in mind or just want to say hello? We'd love to hear from you!
+            </p>
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-8">
+                <a href="mailto:info@team404.com" class="bg-white text-indigo-700 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold text-lg shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    info@team404.com
+                </a>
+                <a href="tel:+233241234567" class="bg-white text-indigo-700 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold text-lg shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.113L9.349 10.5a11.002 11.002 0 006.101 6.101l1.414-1.414a1 1 0 011.113-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    +233 24 123 4567
+                </a>
+            </div>
+            <div class="mt-10 flex justify-center space-x-6">
+                <!-- Social Media Icons (placeholders) -->
+                <a href="#" class="text-white hover:text-gray-200 transition-colors duration-300">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33V22C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+                </a>
+                <a href="#" class="text-white hover:text-gray-200 transition-colors duration-300">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c-1.092.37-2.185.638-3.292.836C3.945 21.288 3 22 3 22V2c0-1.104.896-2 2-2h14c1.104 0 2 .896 2 2v14c0 1.104-.896 2-2 2h-4.008l-2.702 2.251zM12 11.5c-2.485 0-4.5-2.015-4.5-4.5S9.515 2.5 12 2.5s4.5 2.015 4.5 4.5-2.015 4.5-4.5 4.5zM12 4.5c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5-1.12-2.5-2.5-2.5z"/></svg>
+                </a>
+                <a href="#" class="text-white hover:text-gray-200 transition-colors duration-300">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2.417a.75.75 0 01.07.867 12.004 12.004 0 00-1.767 4.969.75.75 0 01-1.457-.387 13.504 13.504 0 012.083-5.597.75.75 0 01.991-.052zm4.307 2.655a.75.75 0 01-.07.867 10.505 10.505 0 00-1.542 4.096.75.75 0 01-1.457-.387 12 12 0 011.77-4.706.75.75 0 01.991-.052zM17.808 5.75a.75.75 0 01-.07.867 9.006 9.006 0 00-1.317 3.535.75.75 0 01-1.457-.387 10.506 10.506 0 011.542-4.096.75.75 0 01.991-.052zM19.308 7.083a.75.75 0 01-.07.867 7.507 7.507 0 00-1.092 2.979.75.75 0 01-1.457-.387 9 9 0 011.317-3.535.75.75 0 01.991-.052zM20.808 8.417a.75.75 0 01-.07.867 6.008 6.008 0 00-.867 2.424.75.75 0 01-1.457-.387 7.508 7.508 0 011.092-2.979.75.75 0 01.991-.052zM22.308 9.75a.75.75 0 01-.07.867 4.509 4.509 0 00-.642 1.874.75.75 0 01-1.457-.387 6.009 6.009 0 01.867-2.424.75.75 0 01.991-.052zM23.808 11.083a.75.75 0 01-.07.867 3.01 3.01 0 00-.433 1.32.75.75 0 01-1.457-.387 4.51 4.51 0 01.642-1.874.75.75 0 01.991-.052zM2.192 2.417a.75.75 0 00-.07.867 12.004 12.004 0 011.767 4.969.75.75 0 001.457-.387 13.504 13.504 0 00-2.083-5.597.75.75 0 00-.991-.052zm-4.307 2.655a.75.75 0 00.07.867 10.505 10.505 0 011.542 4.096.75.75 0 001.457-.387 12 12 0 00-1.77-4.706.75.75 0 00-.991-.052zM-3.808 5.75a.75.75 0 00.07.867 9.006 9.006 0 011.317 3.535.75.75 0 001.457-.387 10.506 10.506 0 00-1.542-4.096.75.75 0 00-.991-.052zM-5.308 7.083a.75.75 0 00.07.867 7.507 7.507 0 011.092 2.979.75.75 0 001.457-.387 9 9 0 01-1.317-3.535.75.75 0 00-.991-.052zM-6.808 8.417a.75.75 0 00.07.867 6.008 6.008 0 01.867 2.424.75.75 0 001.457-.387 7.508 7.508 0 00-1.092-2.979.75.75 0 00-.991-.052zM-8.308 9.75a.75.75 0 00.07.867 4.509 4.509 0 01.642 1.874.75.75 0 001.457-.387 6.009 6.009 0 01-.867-2.424.75.75 0 00-.991-.052zM-9.808 11.083a.75.75 0 00.07.867 3.01 3.01 0 01.433 1.32.75.75 0 001.457-.387 4.51 4.51 0 01-.642-1.874.75.75 0 00-.991-.052z" clip-rule="evenodd" /></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-white py-8 mt-8 rounded-t-lg shadow-inner">
+        <div class="container mx-auto px-6 text-center">
+            <p class="mb-4">&copy; 2025 Team 404. All rights reserved.</p>
+            <div class="flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:text-indigo-400 transition-colors duration-300">Privacy Policy</a>
+                <a href="#" class="hover:text-indigo-400 transition-colors duration-300">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Three.js Setup (now empty as no 3D objects are rendered) ---
+        // Scene, camera, renderer variables are kept but not used for objects.
+        let scene, camera, renderer;
+
+        function initThree() {
+            const container = document.getElementById('three-canvas-container');
+
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera - Orthographic (still needed for a valid Three.js setup, even if nothing is rendered)
+            const aspect = window.innerWidth / window.innerHeight;
+            const frustumSize = 10;
+            camera = new THREE.OrthographicCamera(
+                -frustumSize * aspect / 2,
+                frustumSize * aspect / 2,
+                frustumSize / 2,
+                -frustumSize / 2,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 0, 10);
+            camera.zoom = 1;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // No 3D objects (cube, 404 text) are added here anymore.
+            // No event listeners for mouse movement related to 3D objects.
+            window.addEventListener('resize', onWindowResizeThree, false);
+        }
+
+        function onWindowResizeThree() {
+            const aspect = window.innerWidth / window.innerHeight;
+            const frustumSize = 10;
+            camera.left = -frustumSize * aspect / 2;
+            camera.right = frustumSize * aspect / 2;
+            camera.top = frustumSize / 2;
+            camera.bottom = -frustumSize / 2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+            // No 3D object animations here anymore.
+            renderer.render(scene, camera);
+        }
+
+        // --- Matrix Rain Setup (for background) ---
+        let matrixCanvas, matrixContext;
+        let columns;
+        const fontSizeMatrix = 16;
+        const charactersMatrix = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=[]{}|;:,.<>?/`~';
+        let matrixDrops = [];
+
+        function initMatrixRain() {
+            matrixCanvas = document.getElementById('matrix-canvas');
+            matrixContext = matrixCanvas.getContext('2d');
+
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+
+            columns = Math.floor(matrixCanvas.width / fontSizeMatrix);
+            matrixDrops = [];
+            for (let i = 0; i < columns; i++) {
+                matrixDrops[i] = 1;
+            }
+
+            matrixContext.fillStyle = '#000';
+            matrixContext.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        }
+
+        function animateMatrixRain() {
+            matrixContext.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            matrixContext.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+            matrixContext.fillStyle = '#0000FF'; // Blue matrix characters
+            matrixContext.font = `${fontSizeMatrix}px monospace`;
+
+            for (let i = 0; i < matrixDrops.length; i++) {
+                const text = charactersMatrix.charAt(Math.floor(Math.random() * charactersMatrix.length));
+                matrixContext.fillText(text, i * fontSizeMatrix, matrixDrops[i] * fontSizeMatrix);
+
+                if (matrixDrops[i] * fontSizeMatrix > matrixCanvas.height && Math.random() > 0.975) {
+                    matrixDrops[i] = 0;
+                }
+                matrixDrops[i]++;
+            }
+            requestAnimationFrame(animateMatrixRain);
+        }
+
+        // Initialize everything on window load
+        window.onload = function() {
+            // initThree() is still called to set up the renderer, even if no objects are drawn.
+            initThree();
+            animateThree();
+            initMatrixRain();
+            animateMatrixRain();
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        };
+
+        // Smooth scrolling for navigation links in mobile menu
+        document.querySelectorAll('#mobile-menu a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
