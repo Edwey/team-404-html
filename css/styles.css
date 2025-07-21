@@ -1,17 +1,157 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: black;
+  color: white;
+  overflow-x: hidden;
+}
+.hero-section {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+#glitch-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 40px;
+  border-radius: 12px;
+}
+.hero h1 {
+  font-size: 4rem;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #ccc;
+}
+.hero button {
+  padding: 12px 24px;
+  background: linear-gradient(to right, #06b6d4, #3b82f6);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: background 0.3s;
+}
+.hero button:hover {
+  background: linear-gradient(to right, #0891b2, #2563eb);
+}
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: #06b6d4;
+  width: 0%;
+  z-index: 100;
+  transition: width 0.2s;
+}
+.floating-icons i {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.6;
+  animation: float 4s ease-in-out infinite;
+}
+.floating-icons i:nth-child(1) { top: 20%; left: 5%; color: #22d3ee; }
+.floating-icons i:nth-child(2) { top: 40%; right: 10%; color: #c084fc; }
+.floating-icons i:nth-child(3) { bottom: 10%; left: 50%; color: #facc15; }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.tech-stack, .process {
+  background: #fff;
+  color: #000;
+  text-align: center;
+  padding: 80px 20px;
+}
+.tech-stack h2, .process h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
+.grid, .steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+}
+.grid div, .steps div {
+  width: 200px;
+  text-align: center;
+}
+.grid i, .steps i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  background: #000;
+  color: #fff;
+}
+.projects, .contact {
+  background: #f3f4f6;
+  color: #111;
+  text-align: center;
+  padding: 80px 20px;
+}
+.projects h2, .contact h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
+.projects .grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+}
+.projects .grid div {
+  max-width: 250px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.contact a {
+  color: #2563eb;
+  text-decoration: underline;
+}
 
+/* ✅ About Section Styling */
 .about {
   background: #111;
   color: #ddd;
   text-align: center;
   padding: 80px 20px;
 }
-
 .about h2 {
   font-size: 2rem;
   margin-bottom: 40px;
 }
-
 .about-text {
   max-width: 800px;
   margin: 0 auto;
