@@ -4,8 +4,283 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Team 404</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Tailwind CSS CDN for utility classes -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts - Inter for a modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Phosphor Icons for various UI elements -->
   <link href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/css/icons.css" rel="stylesheet" />
+
+  <style>
+    /* Global styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif; /* Using Inter as per previous context */
+      background: black;
+      color: white;
+      overflow-x: hidden; /* Prevent horizontal scrolling */
+    }
+
+    /* Hero Section - Full viewport height and relative positioning for content */
+    .hero-section {
+      position: relative;
+      height: 100vh;
+      overflow: hidden; /* Keep content within bounds */
+    }
+
+    /* Glitch Canvas - Fixed positioning to cover the entire viewport */
+    #glitch-canvas {
+      position: fixed; /* Changed to fixed */
+      top: 0;
+      left: 0;
+      z-index: -1; /* Ensure it's behind all content */
+      width: 100vw; /* Cover full viewport width */
+      height: 100vh; /* Cover full viewport height */
+    }
+
+    /* Hero Content - Centered and above the canvas */
+    .hero {
+      position: relative;
+      z-index: 1; /* Above the canvas */
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Hero Overlay - Semi-transparent background for readability */
+    .hero-overlay {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); /* Enhanced shadow */
+    }
+
+    /* Hero Heading */
+    .hero h1 {
+      font-size: 4rem;
+      margin-bottom: 10px; /* Added margin for spacing */
+      text-shadow: 0 0 15px rgba(0, 255, 255, 0.8); /* Cyan glow for title */
+    }
+
+    /* Hero Paragraph */
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 30px; /* Increased margin for button spacing */
+      color: #ccc;
+    }
+
+    /* Enter Portfolio Button */
+    .hero button {
+      padding: 12px 24px;
+      background: linear-gradient(to right, #06b6d4, #3b82f6); /* Blue-cyan gradient */
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: background 0.3s ease-in-out, transform 0.2s ease-in-out; /* Added transform transition */
+    }
+
+    .hero button:hover {
+      background: linear-gradient(to right, #0891b2, #2563eb); /* Darker gradient on hover */
+      transform: translateY(-3px); /* Slight lift effect */
+    }
+
+    /* Scroll Progress Bar */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: #06b6d4; /* Cyan color */
+      width: 0%;
+      z-index: 100; /* Always on top */
+      transition: width 0.2s ease-out;
+    }
+
+    /* Floating Icons - Decorative elements */
+    .floating-icons {
+        position: absolute; /* Positioned relative to hero-section */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Allow clicks to pass through */
+        z-index: 5; /* Below hero-overlay but above canvas */
+    }
+
+    .floating-icons i {
+      position: absolute;
+      font-size: 2.5rem; /* Slightly larger icons */
+      opacity: 0.6;
+      animation: float 4s ease-in-out infinite;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow */
+    }
+
+    .floating-icons i:nth-child(1) { top: 20%; left: 5%; color: #22d3ee; animation-delay: 0s; } /* Cyan */
+    .floating-icons i:nth-child(2) { top: 40%; right: 10%; color: #c084fc; animation-delay: 0.5s; } /* Purple */
+    .floating-icons i:nth-child(3) { bottom: 10%; left: 50%; color: #facc15; animation-delay: 1s; } /* Yellow */
+    .floating-icons i:nth-child(4) { top: 10%; right: 20%; color: #84cc16; animation-delay: 1.5s; } /* Lime Green */
+    .floating-icons i:nth-child(5) { bottom: 25%; left: 15%; color: #ef4444; animation-delay: 2s; } /* Red */
+
+
+    /* Floating animation for icons */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* General Section Styling */
+    section {
+      background: #1a1a1a; /* Dark background for sections */
+      color: #fff;
+      text-align: center;
+      padding: 80px 20px;
+      margin-top: 40px;
+      border-radius: 12px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #06b6d4; /* Cyan heading color */
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    }
+
+    /* About Section Specifics */
+    .about .about-text {
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+      font-size: 1.1rem;
+      color: #e0e0e0;
+    }
+
+    .about .about-text p {
+      margin-bottom: 20px;
+    }
+
+    /* Process Grid/Steps */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      justify-content: center;
+      gap: 40px;
+      padding: 0 20px;
+    }
+
+    .steps div {
+      background: #2a2a2a; /* Slightly lighter dark background for cards */
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border: 1px solid rgba(6, 182, 212, 0.2); /* Subtle cyan border */
+    }
+
+    .steps div:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      border-color: #06b6d4; /* Highlight border on hover */
+    }
+
+    .steps i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #3b82f6; /* Blue accent color */
+      text-shadow: 0 0 8px rgba(59, 130, 246, 0.6); /* Blue glow for icons */
+    }
+
+    .steps h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .steps p {
+      font-size: 1rem;
+      color: #c0c0c0;
+    }
+
+    /* Contact Section Specifics */
+    .contact p {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      color: #e0e0e0;
+    }
+
+    .contact a {
+      color: #06b6d4; /* Cyan link color */
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease-in-out;
+    }
+
+    .contact a:hover {
+      color: #3b82f6; /* Blue on hover */
+      text-decoration: underline;
+    }
+
+    /* Footer styles */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      background: #000;
+      color: #fff;
+      margin-top: 80px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 3rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      section {
+        padding: 60px 15px;
+        margin-top: 30px;
+      }
+      section h2 {
+        font-size: 2rem;
+      }
+      .steps {
+        gap: 20px;
+        padding: 0 10px;
+      }
+      .steps div {
+        width: 100%; /* Full width on smaller screens */
+      }
+      .floating-icons i {
+        font-size: 2rem;
+      }
+      /* Adjust positions for smaller screens to prevent overlap */
+      .floating-icons i:nth-child(1) { top: 15%; left: 2%; }
+      .floating-icons i:nth-child(2) { top: 35%; right: 5%; }
+      .floating-icons i:nth-child(3) { bottom: 8%; left: 40%; }
+      .floating-icons i:nth-child(4) { top: 8%; right: 10%; }
+      .floating-icons i:nth-child(5) { bottom: 20%; left: 5%; }
+    }
+  </style>
 </head>
 <body>
   <div class="scroll-progress"></div>
@@ -20,12 +295,14 @@
         <button id="enter-btn">Enter Portfolio</button>
       </div>
     </div>
-  </div>
 
-  <div class="floating-icons">
-    <i class="ph ph-cloud"></i>
-    <i class="ph ph-device-mobile"></i>
-    <i class="ph ph-stack"></i>
+    <div class="floating-icons">
+      <i class="ph ph-cloud"></i>
+      <i class="ph ph-device-mobile"></i>
+      <i class="ph ph-stack"></i>
+      <i class="ph ph-code"></i>
+      <i class="ph ph-rocket"></i>
+    </div>
   </div>
 
   <!-- About Section -->
@@ -55,24 +332,158 @@
 
   <section class="contact">
     <h2>Contact</h2>
-    <p>Email: <a href="#">team404@example.com</a></p>
-    <p>GitHub: <a href="https://github.com/Edwey" target="_blank">github.com/Edwey</a></p>
+    <p>Email: <a href="mailto:team404@example.com">team404@example.com</a></p>
+    <p>GitHub: <a href="https://github.com/Edwey" target="_blank" rel="noopener noreferrer">github.com/Edwey</a></p>
   </section>
 
   <footer>
     &copy; 2025 Team 404. All rights reserved.
   </footer>
 
-  <script src="js/glitch.js"></script>
   <script>
+    const canvas = document.getElementById('glitch-canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill().map(() => Math.random() * canvas.height / fontSize);
+
+    const chars = "アァイィウヴカガサザABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
+    let frame = 0;
+
+    const MAX_CONCURRENT_404S = 7; // Max number of 404 messages at once (increased)
+    let active404Messages = [];
+
+    // Define colors for the 404 message glitch effect (shades of blue)
+    const messageGlitchColors = ['#0000FF', '#4169E1', '#6495ED', '#87CEEB', '#ADD8E6', '#B0E0E6']; // Various shades of blue
+
+    function getRandomMessageRow() {
+      // Ensure message appears within canvas bounds
+      return Math.floor(Math.random() * (canvas.height / fontSize - 2)) + 1;
+    }
+
+    function getRandomMessageCol() {
+      // Ensure message appears within canvas bounds
+      return Math.floor(Math.random() * (columns - "404 NOT FOUND".length));
+    }
+
+    // Function to create a new 404 message object
+    function create404Message() {
+        return {
+            text: "404 NOT FOUND",
+            row: getRandomMessageRow(),
+            col: getRandomMessageCol(),
+            color: messageGlitchColors[Math.floor(Math.random() * messageGlitchColors.length)],
+            glitchOffset: { x: 0, y: 0 } // For individual glitching
+        };
+    }
+
+    // Populate initial 404 messages (random number up to MAX_CONCURRENT_404S)
+    for (let i = 0; i < Math.floor(Math.random() * MAX_CONCURRENT_404S) + 1; i++) {
+        active404Messages.push(create404Message());
+    }
+
+    function draw() {
+      frame++;
+
+      // Fade background slightly
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < columns; i++) { // Iterate through columns for drops
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+
+          let charToDraw = chars[Math.floor(Math.random() * chars.length)]; // Default matrix char
+          let charColor = "rgba(0, 255, 0, 0.4)"; // Default green matrix color (for regular rain)
+          let charOffsetX = 0;
+          let charOffsetY = 0;
+
+          // Check if current drop position is within any active 404 message's bounds
+          let isPartOf404 = false;
+          for (let j = 0; j < active404Messages.length; j++) {
+              const msg = active404Messages[j];
+              const colIndexInMessage = i - msg.col; // Column relative to message start
+              const rowInMessage = Math.floor(drops[i]) - msg.row; // Row relative to message start
+
+              if (rowInMessage === 0 && colIndexInMessage >= 0 && colIndexInMessage < msg.text.length) {
+                  charToDraw = Math.random() < 0.1 ? chars[Math.floor(Math.random() * chars.length)] : msg.text[colIndexInMessage];
+                  charColor = msg.color; // Use the 404 message's specific color
+                  charOffsetX = msg.glitchOffset.x;
+                  charOffsetY = msg.glitchOffset.y;
+                  isPartOf404 = true;
+                  break; // Found a message character for this drop, no need to check other messages
+              }
+          }
+
+          ctx.fillStyle = charColor;
+          ctx.fillText(charToDraw, x + charOffsetX, y + charOffsetY);
+
+          // Reset drops
+          if (drops[i] * fontSize > canvas.height || Math.random() > 0.95) {
+              drops[i] = 0;
+          } else {
+              drops[i]++;
+          }
+      }
+
+      // Update and manage 404 messages every 2 seconds (assuming 60fps)
+      if (frame % 120 === 0) {
+          const action = Math.random();
+          if (action < 0.4 && active404Messages.length < MAX_CONCURRENT_404S) { // Add a new message
+              active404Messages.push(create404Message());
+          } else if (action > 0.6 && active404Messages.length > 0) { // Remove an existing message
+              active404Messages.splice(Math.floor(Math.random() * active404Messages.length), 1);
+          }
+
+          // Update properties (position, color, glitch offset) of existing 404 messages
+          active404Messages.forEach(msg => {
+              msg.row = getRandomMessageRow();
+              msg.col = getRandomMessageCol();
+              msg.color = messageGlitchColors[Math.floor(Math.random() * messageGlitchColors.length)]; // Pick new glitch color
+              msg.glitchOffset.x = (Math.random() - 0.5) * 5; // Small random offset for glitch
+              msg.glitchOffset.y = (Math.random() - 0.5) * 5;
+          });
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    // Start the matrix rain animation
+    draw();
+
+    // Event listener for the "Enter Portfolio" button
     document.getElementById('enter-btn').addEventListener('click', function () {
-      window.location.href = 'main.html';
+      window.location.href = 'main.html'; // Redirect to main.html
     });
 
+    // Scroll progress bar logic
     window.addEventListener('scroll', function () {
       const progress = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
       document.querySelector('.scroll-progress').style.width = progress + '%';
     });
+
+    // Handle canvas resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        // Recalculate columns and reset drops on resize to adapt the matrix rain
+        columns = Math.floor(canvas.width / fontSize);
+        drops.length = 0; // Clear existing drops
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * canvas.height / fontSize;
+        }
+        // Also re-position and re-generate 404 messages on resize
+        active404Messages = [];
+        for (let i = 0; i < Math.floor(Math.random() * MAX_CONCURRENT_404S) + 1; i++) {
+            active404Messages.push(create404Message());
+        }
+    });
+
   </script>
 </body>
 </html>
